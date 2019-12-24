@@ -1,0 +1,26 @@
+# See https://www.dartlang.org/guides/libraries/private-files
+
+# Files and directories created by pub
+.dart_tool/
+.packages
+.pub/
+.gradle
+local.properties
+build/
+# If you're building an application, you may want to check-in your pubspec.lock
+pubspec.lock
+
+# Directory created by dartdoc
+# If you don't generate documentation locally you can remove this line.
+doc/api/
+.idea/miniMusic.iml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml
+.idea/codeStyles/Project.xml
+.idea/libraries/Dart_Packages.xml
+.idea/libraries/Dart_SDK.xml
+.idea/libraries/Flutter_Plugins.xml
+.flutter-plugins
+.flutter-plugins-dependencies
+.idea/*
