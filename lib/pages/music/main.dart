@@ -18,6 +18,8 @@ class _CloudMusicState extends State<CloudMusic> {
 
   @override
   void initState() {
+    musicStore.bind(this);
+
     audioPlayer.onPlayerCompletion.listen((event) {
       this.play(musicStore.playIndex + 1);
     });
@@ -50,8 +52,6 @@ class _CloudMusicState extends State<CloudMusic> {
 
   @override
   Widget build(BuildContext context) {
-    musicStore.bind(this);
-
     return DefaultTabController(
       length: 3,
       child: Scaffold(
