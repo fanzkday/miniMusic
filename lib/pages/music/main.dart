@@ -12,7 +12,7 @@ class CloudMusic extends StatefulWidget {
 }
 
 class _CloudMusicState extends State<CloudMusic> {
-  AudioPlayer audioPlayer = AudioPlayer();
+  AudioPlayer audioPlayer = musicStore.audioPlayer;
 
   bool status = false; // false: 停止; true: 运行中
 

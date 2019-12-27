@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:miniMusic/utils/store.dart';
 
 class BaseInfoStore extends Store {
@@ -13,6 +14,8 @@ class BaseInfoStore extends Store {
   double volume = 50; // 音量
 
   int _playIndex; // 当前播放歌曲的索引
+
+  AudioPlayer audioPlayer = new AudioPlayer();
 
   set username(String value) {
     _username = value;
