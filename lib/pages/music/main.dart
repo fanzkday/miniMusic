@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:miniMusic/pages/music/store.dart';
+import 'package:miniMusic/pages/music/widget/FMlist.dart';
 import 'package:miniMusic/pages/music/widget/login.dart';
 import 'package:miniMusic/pages/music/widget/playlist.dart';
 import 'package:miniMusic/pages/music/widget/songlist.dart';
@@ -15,6 +16,8 @@ class _CloudMusicState extends State<CloudMusic> {
   AudioPlayer audioPlayer = musicStore.audioPlayer;
 
   bool status = false; // false: 停止; true: 运行中
+
+  int tabIdx = 0; // 激活的tab页
 
   @override
   void initState() {
@@ -38,12 +41,20 @@ class _CloudMusicState extends State<CloudMusic> {
   }
 
   void play(int idx) async {
-    var url = await musicStore.getSongUrl(musicStore.songlist[idx]['id']);
+    var url;
+    if (idx == null) {
+      url = await musicStore.getSongUrl(musicStore.fmsonglist[0]['id']);
+    } else {
+      url = await musicStore.getSongUrl(musicStore.songlist[idx]['id']);
+    }
     if (url.isNotEmpty) {
-      setState(() {
-        musicStore.playIndex = idx;
-        this.status = true;
-      });
+      if (idx != null) {
+        setState(() {
+          musicStore.playIndex = idx;
+          this.status = true;
+        });
+      }
+      audioPlayer.release();
       audioPlayer.play(url);
     } else {
       musicStore.showSnacker('获取歌曲失败 | 版权原因不能播放');
@@ -58,6 +69,14 @@ class _CloudMusicState extends State<CloudMusic> {
         appBar: AppBar(
           title: Text('云音乐'),
           bottom: TabBar(
+            onTap: (tabIdx) {
+              setState(() {
+                this.tabIdx = tabIdx;
+                if (tabIdx != 2) {
+                  audioPlayer.release();
+                }
+              });
+            },
             tabs: <Widget>[
               Tab(text: '听歌'),
               Tab(text: '搜歌'),
@@ -90,29 +109,31 @@ class _CloudMusicState extends State<CloudMusic> {
           children: <Widget>[
             Songlist(idx: musicStore.playIndex, play: this.play),
             Text('搜歌'),
-            Text('私人FM'),
+            FMList(play: this.play),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(status ? Icons.pause : Icons.play_arrow),
-          onPressed: () {
-            if (musicStore.playIndex == null) {
-              this.play(0);
-            } else if (audioPlayer.state == null) {
-              this.play(musicStore.playIndex);
-            } else {
-              if (status) {
-                audioPlayer.pause();
-              } else {
-                audioPlayer.resume();
-              }
-            }
+        floatingActionButton: tabIdx == 2
+            ? null
+            : FloatingActionButton(
+                child: Icon(status ? Icons.pause : Icons.play_arrow),
+                onPressed: () {
+                  if (musicStore.playIndex == null) {
+                    this.play(0);
+                  } else if (audioPlayer.state == null) {
+                    this.play(musicStore.playIndex);
+                  } else {
+                    if (status) {
+                      audioPlayer.pause();
+                    } else {
+                      audioPlayer.resume();
+                    }
+                  }
 
-            setState(() {
-              status = !status;
-            });
-          },
-        ),
+                  setState(() {
+                    status = !status;
+                  });
+                },
+              ),
       ),
     );
   }

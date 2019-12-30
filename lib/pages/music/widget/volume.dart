@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miniMusic/pages/music/store.dart';
-
-typedef OnChanged = void Function(double value);
+import 'package:miniMusic/pages/music/typedefs.dart';
 
 class Volume extends StatelessWidget {
   final OnChanged onChanged;

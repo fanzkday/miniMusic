@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:miniMusic/pages/music/store.dart';
-
-typedef Play = void Function(int value);
+import 'package:miniMusic/pages/music/typedefs.dart';
 
 class Songlist extends StatelessWidget {
   final int idx;
   final Play play;
 
-  Songlist({this.play, this.idx}) : assert(play != null, idx != null);
+  Songlist({this.play, this.idx}) : assert(play != null);
 
   @override
   Widget build(BuildContext context) {

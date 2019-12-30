@@ -6,13 +6,26 @@ Dio _dio = new Dio(BaseOptions(
   receiveTimeout: 10000,
 ));
 
-request({String url, String method, dynamic data}) async {
+List cookies = [];
+
+request({String url, String method, dynamic data, bool isLogin = false}) async {
   Response response = await _dio.request(
     url,
     data: data,
-    options: Options(method: method),
+    options: Options(
+      method: method,
+      receiveDataWhenStatusError: true,
+      followRedirects: false,
+      validateStatus: (int code) {
+        return true;
+      },
+      headers: {'cookie': cookies.join(';')},
+    ),
   );
   if (response.statusCode == 200) {
+    if (isLogin) {
+      cookies = response.headers['set-cookie'];
+    }
     return response.data;
   }
   print('http请求失败: ${response.statusCode}');
