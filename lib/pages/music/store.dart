@@ -1,5 +1,6 @@
+import 'dart:math';
+
 import 'package:miniMusic/pages/music/storeBaseInfo.dart';
-import 'package:miniMusic/pages/music/typedefs.dart';
 import 'package:miniMusic/utils/request.dart';
 import 'package:miniMusic/utils/utils.dart';
 
@@ -58,7 +59,13 @@ class MusicStore extends BaseInfoStore {
         songlist = [];
         list.forEach((item) {
           songlist.add(
-            {'id': item['id'], 'name': item['name'], 'songer': item['ar'][0]['name'], 'duration': Utils.msToDt(item['dt'])},
+            {
+              'id': item['id'],
+              'name': item['name'],
+              'songer': item['ar'][0]['name'],
+              'duration': Utils.msToDt(item['dt']),
+              'playId': res['playlist']['id']
+            },
           );
         });
       });
@@ -68,41 +75,41 @@ class MusicStore extends BaseInfoStore {
   }
 
   // 获取歌单中的歌曲列表
-  Future<String> getFMSonglist(Play play) async {
-    if (fmsonglist.length > 0) {
-      return '';
-    }
+  Future<String> getFMSong() async {
     var res = await request(
-      url: '/personal_fm',
+      url: '/personal_fm?${Random().nextDouble()}',
       method: 'get',
     );
-    if (res['code'] == 200) {
-      List list = res['data'];
+    if (res['code'] == 200 && res['data'].length > 0) {
+      Map item = res['data'][0];
       this.refresh(() {
-        fmsonglist = [];
-        list.forEach((item) {
-          fmsonglist.add(
-            {'id': item['id'], 'name': item['name'], 'songer': item['artists'][0]['name'], 'duration': Utils.msToDt(item['duration'])},
-          );
-        });
+        fmsong = {'id': item['id'], 'name': item['name'], 'songer': item['artists'][0]['name'], 'duration': Utils.msToDt(item['duration'])};
       });
-      play(null);
-      return '';
+      return this.getSongUrl(fmsong['id']);
     }
-    return '获取私人FM歌曲失败';
+    this.showSnacker('获取私人FM歌曲失败');
+    return null;
   }
 
   // 收藏歌曲
-  Future<String> trackSong(int playId, int songId) async {
+  Future<void> trackSong(int playId, int songId, String type) async {
     var res = await request(
-      url: '/playlist/tracks?op=add\&pid=$playId\&tracks=$songId',
+      url: '/playlist/tracks?op=$type&pid=$playId&tracks=$songId',
       method: 'get',
     );
+    String tip = type == 'add' ? '收藏' : '取消收藏';
     if (res['code'] == 200) {
-      //
-      return '收藏歌曲成功';
+      this.showSnacker('$tip 歌曲成功');
+      if (type == 'del') {
+        this.refresh(() {
+          this.songlist.removeWhere((item) {
+            return item['id'] == songId;
+          });
+        });
+      }
+      return;
     }
-    return '收藏歌曲失败';
+    this.showSnacker('$tip 歌曲失败');
   }
 
   // 根据歌曲id获取歌曲的url地址

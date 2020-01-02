@@ -10,7 +10,7 @@ class BaseInfoStore extends Store {
 
   List<Map> playlist = []; // 私人的歌单列表
   List<Map> songlist = []; // 歌单内的歌曲列表
-  List<Map> fmsonglist = []; // 私人fm歌曲列表
+  Map fmsong; // 私人fm歌曲信息
 
   double volume = 50; // 音量
 

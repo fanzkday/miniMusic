@@ -18,10 +18,28 @@ class Songlist extends StatelessWidget {
           onTap: () {
             this.play(i);
           },
-          leading: this.idx == i ? Icon(Icons.arrow_forward, color: Colors.lightBlueAccent) : Text('$i'),
+          leading: this.idx == i ? Icon(IconData(0xe88f, fontFamily: 'iconfont'), color: Colors.blueAccent) : Text('${i + 1}'),
           title: Text(item['name']),
           subtitle: Text(item['songer']),
-          trailing: Text('${item['duration']}'),
+          trailing: Container(
+            width: 60.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text('${item['duration']}'),
+                GestureDetector(
+                  onTap: () {
+                    musicStore.trackSong(item['playId'], item['id'], 'del');
+                  },
+                  child: Icon(
+                    IconData(0xe63e, fontFamily: 'iconfont'),
+                    size: 20.0,
+                    color: Colors.pinkAccent,
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );

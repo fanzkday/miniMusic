@@ -1,32 +1,53 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:miniMusic/pages/music/store.dart';
 import 'package:miniMusic/pages/music/typedefs.dart';
 
-class FMList extends StatelessWidget {
-  final TextStyle textStyle = TextStyle(fontSize: 24.0, color: Colors.blueAccent);
+class FMList extends StatefulWidget {
   final Play play;
+
+  FMList({this.play});
+
+  @override
+  _FMListState createState() => _FMListState();
+}
+
+class _FMListState extends State<FMList> {
+  AudioPlayer audioPlayer = musicStore.audioPlayer;
+
+  TextStyle textStyle = const TextStyle(fontSize: 24.0, color: Colors.blueAccent);
 
   PersistentBottomSheetController bottomSheet;
 
-  FMList({this.play}) : assert(play != null);
+  @override
+  void initState() {
+    this.playNext();
+    audioPlayer.onPlayerCompletion.listen((event) {
+      this.playNext();
+    });
+    super.initState();
+  }
+
+  playNext() {
+    audioPlayer.release();
+    musicStore.getFMSong().then((url) async {
+      if (url.isNotEmpty) {
+        await audioPlayer.play(url);
+        setState(() {});
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    musicStore.getFMSonglist(play);
     var color = Colors.grey;
-    Map map = musicStore.fmsonglist.length > 0 ? musicStore.fmsonglist[0] : {'name': '', 'songer': '', 'duration': ''};
+    Map map = musicStore.fmsong ?? {'name': '', 'songer': '', 'duration': ''};
     return Container(
       margin: EdgeInsets.only(bottom: 50.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Center(
-            child: Text(
-              map['name'],
-              style: textStyle,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Center(child: Text(map['name'], style: textStyle, overflow: TextOverflow.ellipsis)),
           SizedBox(height: 25.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -41,7 +62,7 @@ class FMList extends StatelessWidget {
             alignment: MainAxisAlignment.center,
             children: <Widget>[
               IconButton(
-                icon: Icon(Icons.add),
+                icon: Icon(IconData(0xe63d, fontFamily: 'iconfont'), size: 40.0),
                 iconSize: 50,
                 color: color,
                 tooltip: '收藏',
@@ -57,8 +78,7 @@ class FMList extends StatelessWidget {
                           return ListTile(
                             onTap: () async {
                               bottomSheet.close();
-                              String msg = await musicStore.trackSong(item['id'], musicStore.fmsonglist[0]['id']);
-                              musicStore.showSnacker(msg);
+                              musicStore.trackSong(item['id'], musicStore.fmsong['id'], 'add');
                             },
                             title: Text(item['name']),
                           );
@@ -69,12 +89,17 @@ class FMList extends StatelessWidget {
                 },
               ),
               IconButton(
-                icon: Icon(Icons.settings_backup_restore),
+                icon: Icon(audioPlayer.state == AudioPlayerState.PLAYING ? Icons.pause : Icons.play_arrow),
                 tooltip: '播放',
                 iconSize: 50,
                 color: color,
-                onPressed: () {
-                  this.play(null);
+                onPressed: () async {
+                  if (audioPlayer.state == AudioPlayerState.PLAYING) {
+                    await audioPlayer.pause();
+                  } else {
+                    await audioPlayer.resume();
+                  }
+                  setState(() {});
                 },
               ),
               IconButton(
@@ -82,16 +107,7 @@ class FMList extends StatelessWidget {
                 tooltip: '下一首',
                 iconSize: 50,
                 color: color,
-                onPressed: () {
-                  musicStore.fmsonglist.removeAt(0);
-                  if (musicStore.fmsonglist.length == 0) {
-                    musicStore.getFMSonglist(play);
-                  } else {
-                    musicStore.refresh(() {
-                      this.play(null);
-                    });
-                  }
-                },
+                onPressed: this.playNext,
               )
             ],
           ),

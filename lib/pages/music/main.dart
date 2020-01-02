@@ -24,7 +24,9 @@ class _CloudMusicState extends State<CloudMusic> {
     musicStore.bind(this);
 
     audioPlayer.onPlayerCompletion.listen((event) {
-      this.play(musicStore.playIndex + 1);
+      if (this.tabIdx == 0) {
+        this.play(musicStore.playIndex + 1);
+      }
     });
     audioPlayer.setVolume(musicStore.volume / 100);
 
@@ -41,19 +43,12 @@ class _CloudMusicState extends State<CloudMusic> {
   }
 
   void play(int idx) async {
-    var url;
-    if (idx == null) {
-      url = await musicStore.getSongUrl(musicStore.fmsonglist[0]['id']);
-    } else {
-      url = await musicStore.getSongUrl(musicStore.songlist[idx]['id']);
-    }
+    var url = await musicStore.getSongUrl(musicStore.songlist[idx]['id']);
     if (url.isNotEmpty) {
-      if (idx != null) {
-        setState(() {
-          musicStore.playIndex = idx;
-          this.status = true;
-        });
-      }
+      setState(() {
+        musicStore.playIndex = idx;
+        this.status = true;
+      });
       audioPlayer.release();
       audioPlayer.play(url);
     } else {
@@ -70,12 +65,7 @@ class _CloudMusicState extends State<CloudMusic> {
           title: Text('云音乐'),
           bottom: TabBar(
             onTap: (tabIdx) {
-              setState(() {
-                this.tabIdx = tabIdx;
-                if (tabIdx != 2) {
-                  audioPlayer.release();
-                }
-              });
+              this.tabIdx = tabIdx;
             },
             tabs: <Widget>[
               Tab(text: '听歌'),
