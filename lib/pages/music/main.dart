@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:miniMusic/pages/music/store.dart';
-import 'package:miniMusic/pages/music/widget/FMlist.dart';
 import 'package:miniMusic/pages/music/widget/login.dart';
 import 'package:miniMusic/pages/music/widget/playlist.dart';
 import 'package:miniMusic/pages/music/widget/songlist.dart';
 import 'package:miniMusic/pages/music/widget/volume.dart';
+import 'package:miniMusic/utils/player.dart';
 
 class CloudMusic extends StatefulWidget {
   @override
@@ -13,124 +12,79 @@ class CloudMusic extends StatefulWidget {
 }
 
 class _CloudMusicState extends State<CloudMusic> {
-  AudioPlayer audioPlayer = musicStore.audioPlayer;
-
-  bool status = false; // false: 停止; true: 运行中
-
-  int tabIdx = 0; // 激活的tab页
+  bool status = player.status;
 
   @override
   void initState() {
-    musicStore.bind(this);
+    musicSto.bind(this);
 
-    audioPlayer.onPlayerCompletion.listen((event) {
-      if (this.tabIdx == 0) {
-        this.play(musicStore.playIndex + 1);
-      }
-    });
-    audioPlayer.setVolume(musicStore.volume / 100);
-
-    musicStore.showSnacker = (String msg) {
+    musicSto.showSnacker = (String msg) {
       if (msg.isNotEmpty) {
         Scaffold.of(context).showSnackBar(SnackBar(
           content: Text(msg),
         ));
       }
     };
-    musicStore.login();
+    musicSto.login();
 
     super.initState();
   }
 
-  void play(int idx) async {
-    var url = await musicStore.getSongUrl(musicStore.songlist[idx]['id']);
-    if (url.isNotEmpty) {
-      setState(() {
-        musicStore.playIndex = idx;
-        this.status = true;
-      });
-      audioPlayer.release();
-      audioPlayer.play(url);
-    } else {
-      musicStore.showSnacker('获取歌曲失败 | 版权原因不能播放');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('云音乐'),
-          bottom: TabBar(
-            onTap: (tabIdx) {
-              this.tabIdx = tabIdx;
-            },
-            tabs: <Widget>[
-              Tab(text: '听歌'),
-              Tab(text: '搜歌'),
-              Tab(text: '私人FM'),
-            ],
-          ),
-        ),
-        drawer: Drawer(
-          child: ListView(
-            children: <Widget>[
-              DrawerHeader(
-                decoration: BoxDecoration(color: Colors.lightBlueAccent),
-                child: Center(
-                  child: SizedBox(
-                    width: 100.0,
-                    height: 100.0,
-                    child: ClipOval(child: musicStore.avatar != null ? Image.network(musicStore.avatar) : Text('')),
-                  ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('云音乐'),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(color: Colors.lightBlueAccent),
+              child: Center(
+                child: SizedBox(
+                  width: 100.0,
+                  height: 100.0,
+                  child: ClipOval(
+                      child: musicSto.avatar != null
+                          ? Image.network(musicSto.avatar)
+                          : Text('')),
                 ),
               ),
-              Login(),
-              Volume(onChanged: (value) {
-                audioPlayer.setVolume(value / 100);
-              }),
-              Playlist()
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: <Widget>[
-            Songlist(idx: musicStore.playIndex, play: this.play),
-            Text('搜歌'),
-            FMList(play: this.play),
+            ),
+            Login(),
+            Volume(onChanged: (value) {
+              player.setVolume(value);
+            }),
+            Playlist()
           ],
         ),
-        floatingActionButton: tabIdx == 2
-            ? null
-            : FloatingActionButton(
-                child: Icon(status ? Icons.pause : Icons.play_arrow),
-                onPressed: () {
-                  if (musicStore.playIndex == null) {
-                    this.play(0);
-                  } else if (audioPlayer.state == null) {
-                    this.play(musicStore.playIndex);
-                  } else {
-                    if (status) {
-                      audioPlayer.pause();
-                    } else {
-                      audioPlayer.resume();
-                    }
-                  }
-
-                  setState(() {
-                    status = !status;
-                  });
-                },
-              ),
+      ),
+      body: SongList(play: (int idx) async {
+        bool s = await player.play(idx);
+        setState(() {
+          status = s;
+        });
+      }),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(status ? Icons.pause : Icons.play_arrow),
+        onPressed: () async {
+          bool s;
+          if (status) {
+            s = await player.pause();
+          } else {
+            s = await player.resume();
+          }
+          setState(() {
+            status = s;
+          });
+        },
       ),
     );
   }
 
   @override
   void dispose() {
-    audioPlayer.dispose();
     super.dispose();
   }
 }

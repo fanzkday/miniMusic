@@ -8,7 +8,7 @@ Dio _dio = new Dio(BaseOptions(
 
 List cookies = [];
 
-request({String url, String method, dynamic data, bool isLogin = false}) async {
+request({String url, String method, dynamic data}) async {
   Response response = await _dio.request(
     url,
     data: data,
@@ -19,13 +19,9 @@ request({String url, String method, dynamic data, bool isLogin = false}) async {
       validateStatus: (int code) {
         return true;
       },
-      headers: {'cookie': cookies.join(';')},
     ),
   );
   if (response.statusCode == 200) {
-    if (isLogin) {
-      cookies = response.headers['set-cookie'];
-    }
     return response.data;
   }
   print('http请求失败: ${response.statusCode}');

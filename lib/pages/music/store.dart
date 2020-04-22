@@ -4,7 +4,7 @@ import 'package:miniMusic/pages/music/storeBaseInfo.dart';
 import 'package:miniMusic/utils/request.dart';
 import 'package:miniMusic/utils/utils.dart';
 
-class MusicStore extends BaseInfoStore {
+class MusicSto extends BaseInfoStore {
   Future<String> login() async {
     if (uid != null) {
       return getPlaylist();
@@ -13,7 +13,6 @@ class MusicStore extends BaseInfoStore {
       var res = await request(
         url: '/login/cellphone?phone=$username&password=$password',
         method: 'get',
-        isLogin: true,
       );
       if (res['code'] == 200) {
         uid = res['account']['id'];
@@ -74,23 +73,6 @@ class MusicStore extends BaseInfoStore {
     return '获取歌曲列表失败';
   }
 
-  // 获取歌单中的歌曲列表
-  Future<String> getFMSong() async {
-    var res = await request(
-      url: '/personal_fm?${Random().nextDouble()}',
-      method: 'get',
-    );
-    if (res['code'] == 200 && res['data'].length > 0) {
-      Map item = res['data'][0];
-      this.refresh(() {
-        fmsong = {'id': item['id'], 'name': item['name'], 'songer': item['artists'][0]['name'], 'duration': Utils.msToDt(item['duration'])};
-      });
-      return this.getSongUrl(fmsong['id']);
-    }
-    this.showSnacker('获取私人FM歌曲失败');
-    return null;
-  }
-
   // 收藏歌曲
   Future<void> trackSong(int playId, int songId, String type) async {
     var res = await request(
@@ -129,4 +111,4 @@ class MusicStore extends BaseInfoStore {
   }
 }
 
-final MusicStore musicStore = new MusicStore();
+final MusicSto musicSto = new MusicSto();

@@ -17,14 +17,14 @@ class Volume extends StatelessWidget {
           Text('音量'),
           Expanded(
             child: Slider(
-              value: musicStore.volume,
-              label: '${musicStore.volume}',
+              value: musicSto.volume,
+              label: '${musicSto.volume}',
               min: 0,
               max: 100,
               divisions: 100,
               onChanged: (value) {
-                musicStore.refresh(() {
-                  musicStore.volume = value.floorToDouble();
+                musicSto.refresh(() {
+                  musicSto.volume = value.floorToDouble();
                   onChanged(value);
                 });
               },

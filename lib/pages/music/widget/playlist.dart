@@ -13,11 +13,11 @@ class Playlist extends StatelessWidget {
         ),
         Container(
           child: Wrap(
-            children: musicStore.playlist.map((item) {
+            children: musicSto.playlist.map((item) {
               return ListTile(
                 onTap: () async {
-                  var errMsg = await musicStore.getSonglist(item['id']);
-                  musicStore.showSnacker(errMsg);
+                  var errMsg = await musicSto.getSonglist(item['id']);
+                  musicSto.showSnacker(errMsg);
                 },
                 dense: true,
                 isThreeLine: false,

@@ -2,23 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:miniMusic/pages/music/store.dart';
 import 'package:miniMusic/pages/music/typedefs.dart';
 
-class Songlist extends StatelessWidget {
-  final int idx;
+class SongList extends StatelessWidget {
   final Play play;
 
-  Songlist({this.play, this.idx}) : assert(play != null);
+  SongList({this.play}) : assert(play != null);
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: musicStore.songlist.length,
+      itemCount: musicSto.songlist.length,
       itemBuilder: (cxt, i) {
-        var item = musicStore.songlist[i];
+        var item = musicSto.songlist[i];
         return ListTile(
           onTap: () {
             this.play(i);
           },
-          leading: this.idx == i ? Icon(IconData(0xe88f, fontFamily: 'iconfont'), color: Colors.blueAccent) : Text('${i + 1}'),
+          leading: musicSto.playIndex == i
+              ? Icon(IconData(0xe88f, fontFamily: 'iconfont'),
+                  color: Colors.blueAccent)
+              : Text('${i + 1}'),
           title: Text(item['name']),
           subtitle: Text(item['songer']),
           trailing: Container(
@@ -27,16 +29,6 @@ class Songlist extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text('${item['duration']}'),
-                GestureDetector(
-                  onTap: () {
-                    musicStore.trackSong(item['playId'], item['id'], 'del');
-                  },
-                  child: Icon(
-                    IconData(0xe63e, fontFamily: 'iconfont'),
-                    size: 20.0,
-                    color: Colors.pinkAccent,
-                  ),
-                ),
               ],
             ),
           ),

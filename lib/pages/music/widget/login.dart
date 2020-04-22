@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:miniMusic/pages/music/store.dart';
 
 class Login extends StatelessWidget {
-  final nameController = new TextEditingController(text: musicStore.storage.getString('username'));
-  final pwdController = new TextEditingController(text: musicStore.storage.getString('password'));
+  final nameController = new TextEditingController(text: musicSto.storage.getString('username'));
+  final pwdController = new TextEditingController(text: musicSto.storage.getString('password'));
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class Login extends StatelessWidget {
             controller: nameController,
             keyboardType: TextInputType.number,
             onChanged: (String value) {
-              musicStore.username = value;
+              musicSto.username = value;
             },
           ),
           TextField(
@@ -32,7 +32,7 @@ class Login extends StatelessWidget {
             controller: pwdController,
             obscureText: true,
             onChanged: (String value) {
-              musicStore.password = value;
+              musicSto.password = value;
             },
           ),
           Container(
@@ -42,8 +42,8 @@ class Login extends StatelessWidget {
               children: <Widget>[
                 RaisedButton(
                   onPressed: () async {
-                    var errMsg = await musicStore.login();
-                    musicStore.showSnacker(errMsg);
+                    var errMsg = await musicSto.login();
+                    musicSto.showSnacker(errMsg);
                   },
                   child: Text('登录'),
                 ),
