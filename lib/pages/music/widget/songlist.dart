@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:miniMusic/pages/music/store.dart';
 import 'package:miniMusic/pages/music/typedefs.dart';
+import 'package:miniMusic/utils/player.dart';
 
 class SongList extends StatelessWidget {
   final Play play;
@@ -14,21 +16,26 @@ class SongList extends StatelessWidget {
       itemBuilder: (cxt, i) {
         var item = musicSto.songlist[i];
         return ListTile(
+          dense: true,
           onTap: () {
             this.play(i);
           },
           leading: musicSto.playIndex == i
-              ? Icon(IconData(0xe88f, fontFamily: 'iconfont'),
-                  color: Colors.blueAccent)
+              ? Icon(Icons.play_circle_fill)
               : Text('${i + 1}'),
           title: Text(item['name']),
           subtitle: Text(item['songer']),
           trailing: Container(
-            width: 60.0,
+            width: 80.0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text('${item['duration']}'),
+                IconButton(
+                    icon: Icon(Icons.arrow_downward),
+                    onPressed: () {
+                      player.download(i);
+                    })
               ],
             ),
           ),

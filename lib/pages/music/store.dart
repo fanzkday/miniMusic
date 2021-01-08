@@ -53,22 +53,29 @@ class MusicSto extends BaseInfoStore {
       method: 'get',
     );
     if (res['code'] == 200) {
-      List list = res['playlist']['tracks'];
-      this.refresh(() {
-        songlist = [];
-        list.forEach((item) {
-          songlist.add(
-            {
-              'id': item['id'],
-              'name': item['name'],
-              'songer': item['ar'][0]['name'],
-              'duration': Utils.msToDt(item['dt']),
-              'playId': res['playlist']['id']
-            },
-          );
+      List list = res['playlist']['trackIds'];
+      List ids = list.asMap().values.map((e) => e['id']).toList();
+      var res2 = await request(
+        url: '/song/detail?ids=${ids.join(",")}',
+        method: 'get',
+      );
+      if (res2['code'] == 200) {
+        this.refresh(() {
+          songlist = [];
+          res2['songs'].forEach((item) {
+            songlist.add(
+              {
+                'id': item['id'],
+                'name': item['name'],
+                'songer': item['ar'][0]['name'],
+                'duration': Utils.msToDt(item['dt']),
+                'playId': res['playlist']['id']
+              },
+            );
+          });
         });
-      });
-      return '';
+        return '';
+      }
     }
     return '获取歌曲列表失败';
   }
