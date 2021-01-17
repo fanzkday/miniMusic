@@ -9,9 +9,12 @@ class BaseInfoStore extends Store {
   String avatar; // 用户头像地址
 
   List<Map> playlist = []; // 私人的歌单列表
+
+  int playlistIndex = 0;
+
   List<Map> songlist = []; // 歌单内的歌曲列表
 
-  double volume = 50; // 音量
+  double volume = 100; // 音量
 
   int _playIndex; // 当前播放歌曲的索引
 

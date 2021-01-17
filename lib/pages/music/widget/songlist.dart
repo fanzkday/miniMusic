@@ -11,36 +11,47 @@ class SongList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: musicSto.songlist.length,
-      itemBuilder: (cxt, i) {
-        var item = musicSto.songlist[i];
-        return ListTile(
-          dense: true,
-          onTap: () {
-            this.play(i);
+    return RefreshIndicator(
+        onRefresh: () async {
+          musicSto.refresh(() {
+            musicSto.getSonglist(musicSto.playlistIndex);
+          });
+        },
+        child: ListView.builder(
+          itemCount: musicSto.songlist.length,
+          itemBuilder: (cxt, i) {
+            var item = musicSto.songlist[i];
+            return ListTile(
+              dense: true,
+              onTap: () {
+                this.play(i);
+              },
+              leading: musicSto.playIndex == i
+                  ? Icon(Icons.arrow_forward, color: Colors.green,)
+                  : Text('${i + 1}'),
+              title: Text(item['name']),
+              subtitle: Text(item['songer']),
+              trailing: Container(
+                width: 140.0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      '${item['downloadStatus'] ? '已下载' : '未下载'}',
+                      style: TextStyle(color: item['downloadStatus'] ? Colors.green : Colors.grey),
+                    ),
+                    Text('${item['duration']}', style: TextStyle(color: Colors.grey),),
+                    IconButton(
+                      icon: Icon(Icons.arrow_downward, color: Colors.grey,),
+                      onPressed: () {
+                        player.download(i);
+                      },
+                    )
+                  ],
+                ),
+              ),
+            );
           },
-          leading: musicSto.playIndex == i
-              ? Icon(Icons.play_circle_fill)
-              : Text('${i + 1}'),
-          title: Text(item['name']),
-          subtitle: Text(item['songer']),
-          trailing: Container(
-            width: 80.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text('${item['duration']}'),
-                IconButton(
-                    icon: Icon(Icons.arrow_downward),
-                    onPressed: () {
-                      player.download(i);
-                    })
-              ],
-            ),
-          ),
-        );
-      },
-    );
+        ));
   }
 }

@@ -48,6 +48,7 @@ class MusicSto extends BaseInfoStore {
 
   // 获取歌单中的歌曲列表
   Future<String> getSonglist(int id) async {
+    this.playlistIndex = id;
     var res = await request(
       url: '/playlist/detail?id=$id',
       method: 'get',
@@ -62,14 +63,17 @@ class MusicSto extends BaseInfoStore {
       if (res2['code'] == 200) {
         this.refresh(() {
           songlist = [];
-          res2['songs'].forEach((item) {
+          res2['songs'].forEach((item) async {
+            String name = Utils.formatFilename(item['name']);
+            List<String> names = await Utils.getDownloadSongsName();
             songlist.add(
               {
                 'id': item['id'],
-                'name': item['name'],
+                'name': name,
                 'songer': item['ar'][0]['name'],
                 'duration': Utils.msToDt(item['dt']),
-                'playId': res['playlist']['id']
+                'playId': res['playlist']['id'],
+                'downloadStatus': names.contains(name),
               },
             );
           });

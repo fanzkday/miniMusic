@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:miniMusic/pages/music/store.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:miniMusic/utils/utils.dart';
 
 class _Player {
+  double position = 0.0;
+
   bool get status {
     return this.audioPlayer.state == AudioPlayerState.PLAYING;
   }
@@ -16,6 +18,15 @@ class _Player {
     this.audioPlayer.onPlayerCompletion.listen((event) {
       this.next();
     });
+
+    this.audioPlayer.onAudioPositionChanged.listen((event) async {
+      int d = await this.audioPlayer.getDuration();
+      int p = await this.audioPlayer.getCurrentPosition();
+
+      musicSto.refresh(() {
+        this.position = p / d;
+      });
+    });
   }
 
   Future<bool> play(int idx) async {
@@ -25,6 +36,9 @@ class _Player {
       int i = await this.audioPlayer.play(url);
       if (i == 1) {
         musicSto.playIndex = idx;
+        musicSto.refresh(() {
+          //
+        });
       }
     }
     return this.status;
@@ -72,16 +86,27 @@ class _Player {
     if (url.isEmpty) {
       musicSto.showSnacker('下载失败');
     } else {
-      Directory dir = await getExternalStorageDirectory();
+      String savedDir = await Utils.downloadPath();
+      String filename = Utils.formatFilename(name) + '.mp3';
+
+      File mp3 = File(savedDir + '/' + filename);
+      if (mp3.existsSync()) {
+        musicSto.showSnacker('$name 文件已存在');
+        return;
+      }
+
       final taskId = await FlutterDownloader.enqueue(
         url: url,
-        savedDir: dir.path,
-        fileName: '${name.replaceAll('/', '-')}.mp3',
+        savedDir: savedDir,
+        fileName: filename,
         showNotification: false,
         openFileFromNotification: false,
       );
       if (taskId.isNotEmpty) {
         musicSto.showSnacker('$name 下载成功');
+        musicSto.refresh(() {
+          musicSto.songlist[idx]['downloadStatus'] = true;
+        });
       }
     }
   }

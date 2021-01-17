@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'dart:ui';
+
+import 'package:path_provider/path_provider.dart';
 
 class Adapter {
   static double px(double pixel) {
@@ -28,11 +31,29 @@ class Utils {
     return result;
   }
 
-  // 毫秒转市场 3:25
+  // 毫秒转时长 3:25
   static String msToDt(int milliseconds) {
     var secondsTotal = Duration(milliseconds: milliseconds).inSeconds;
     var minutes = Duration(milliseconds: milliseconds).inMinutes;
     var seconds = (secondsTotal - minutes * 60).toString().padLeft(2, '0');
     return '$minutes:$seconds';
   }
+
+  static Future<String> downloadPath() async {
+
+    Directory dir = await getExternalStorageDirectory();
+
+    return dir.parent.parent.parent.path + '/demo/';
+  }
+
+  static String formatFilename(String filename)  {
+
+    return '${filename.replaceAll('/', '-')}';
+  }
+
+  static Future<List<String>> getDownloadSongsName() async {
+    String path = await Utils.downloadPath();
+    return await Directory(path).list().map((event) => event.path.replaceFirst(path, '').replaceAll('.mp3', '')).toList();
+  }
+
 }

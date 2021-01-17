@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -9,16 +10,16 @@ import 'package:miniMusic/utils/store.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDownloader.initialize(
-      debug: true // optional: set false to disable printing logs to console
-      );
+
+  await FlutterDownloader.initialize( debug: false );
+
   SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(
     statusBarBrightness: Brightness.light,
     statusBarColor: Colors.transparent,
   );
   SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
 
-  // debugPaintSizeEnabled = true;
+  debugPaintSizeEnabled = false;
 
   // 初始化数据库等连接
   await Store.init();

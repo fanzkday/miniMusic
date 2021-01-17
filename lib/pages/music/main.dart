@@ -3,7 +3,6 @@ import 'package:miniMusic/pages/music/store.dart';
 import 'package:miniMusic/pages/music/widget/login.dart';
 import 'package:miniMusic/pages/music/widget/playlist.dart';
 import 'package:miniMusic/pages/music/widget/songlist.dart';
-import 'package:miniMusic/pages/music/widget/volume.dart';
 import 'package:miniMusic/utils/player.dart';
 
 class CloudMusic extends StatefulWidget {
@@ -36,6 +35,11 @@ class _CloudMusicState extends State<CloudMusic> {
       appBar: AppBar(
         title: Text('云音乐'),
       ),
+      bottomSheet: LinearProgressIndicator(
+        backgroundColor: Colors.transparent,
+        value: player.position,
+        valueColor: new AlwaysStoppedAnimation<Color>(Colors.green),
+      ),
       drawer: Drawer(
         child: ListView(
           children: <Widget>[
@@ -53,9 +57,7 @@ class _CloudMusicState extends State<CloudMusic> {
               ),
             ),
             Login(),
-            Volume(onChanged: (value) {
-              player.setVolume(value);
-            }),
+            Divider(height: 15.0, color: Colors.grey,),
             Playlist()
           ],
         ),
