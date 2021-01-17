@@ -89,6 +89,11 @@ class _Player {
       String savedDir = await Utils.downloadPath();
       String filename = Utils.formatFilename(name) + '.mp3';
 
+      Directory dir = Directory(savedDir);
+      if(!dir.existsSync()) {
+        Directory(savedDir).createSync();
+      }
+
       File mp3 = File(savedDir + '/' + filename);
       if (mp3.existsSync()) {
         musicSto.showSnacker('$name 文件已存在');

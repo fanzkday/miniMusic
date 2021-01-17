@@ -53,6 +53,9 @@ class Utils {
 
   static Future<List<String>> getDownloadSongsName() async {
     String path = await Utils.downloadPath();
+    if(!Directory(path).existsSync()) {
+      return [];
+    }
     return await Directory(path).list().map((event) => event.path.replaceFirst(path, '').replaceAll('.mp3', '')).toList();
   }
 

@@ -4,6 +4,7 @@ import 'package:miniMusic/pages/music/widget/login.dart';
 import 'package:miniMusic/pages/music/widget/playlist.dart';
 import 'package:miniMusic/pages/music/widget/songlist.dart';
 import 'package:miniMusic/utils/player.dart';
+import 'package:miniMusic/utils/utils.dart';
 
 class CloudMusic extends StatefulWidget {
   @override
@@ -57,7 +58,28 @@ class _CloudMusicState extends State<CloudMusic> {
               ),
             ),
             Login(),
-            Divider(height: 15.0, color: Colors.grey,),
+            Divider(
+              height: 15.0,
+              color: Colors.grey,
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 20.0),
+              child: Wrap(
+                children: [
+                  Text('下载地址: '),
+                  FutureBuilder(
+                    future: Utils.downloadPath(),
+                    builder: (cxt, path) {
+                      return Text('${path.data}');
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Divider(
+              height: 15.0,
+              color: Colors.grey,
+            ),
             Playlist()
           ],
         ),
