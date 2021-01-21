@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:miniMusic/pages/music/store.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Adapter {
   static double px(double pixel) {
@@ -40,23 +42,37 @@ class Utils {
   }
 
   static Future<String> downloadPath() async {
-
     Directory dir = await getExternalStorageDirectory();
 
     return dir.parent.parent.parent.path + '/demo/';
   }
 
-  static String formatFilename(String filename)  {
-
+  static String formatFilename(String filename) {
     return '${filename.replaceAll('/', '-')}';
   }
 
   static Future<List<String>> getDownloadSongsName() async {
     String path = await Utils.downloadPath();
-    if(!Directory(path).existsSync()) {
+
+    var status = await Permission.storage.status;
+    if (status != PermissionStatus.granted) {
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.storage,
+      ].request();
+
+      if (statuses[Permission.storage] != PermissionStatus.granted) {
+        musicSto.showSnacker("无法获取权限");
+        return [];
+      }
+    }
+
+    if (!Directory(path).existsSync()) {
       return [];
     }
-    return await Directory(path).list().map((event) => event.path.replaceFirst(path, '').replaceAll('.mp3', '')).toList();
+    return await Directory(path)
+        .list()
+        .map(
+            (event) => event.path.replaceFirst(path, '').replaceAll('.mp3', ''))
+        .toList();
   }
-
 }

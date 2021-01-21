@@ -28,6 +28,7 @@ dependencies:
   shared_preferences:
   flutter_downloader: 1.5.2
   path_provider: 1.6.0
+  permission_handler: 5.0.1
 
 dev_dependencies:
   flutter_test:

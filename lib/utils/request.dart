@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 Dio _dio = new Dio(BaseOptions(
   baseUrl: 'http://www.lovecf.cn/cloudapi',
   connectTimeout: 5000,
-  receiveTimeout: 10000,
+  receiveTimeout: 20000,
 ));
 
 List cookies = [];
