@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:miniMusic/entity/Song.dart';
 import 'package:miniMusic/utils/store.dart';
 
 class BaseInfoStore extends Store {
@@ -12,7 +13,7 @@ class BaseInfoStore extends Store {
 
   int playlistIndex = 0;
 
-  List<Map> songlist = []; // 歌单内的歌曲列表
+  List<Song> songlist = []; // 歌单内的歌曲列表
 
   double volume = 100; // 音量
 

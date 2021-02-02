@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:miniMusic/entity/Song.dart';
 import 'package:miniMusic/pages/music/storeBaseInfo.dart';
 import 'package:miniMusic/utils/request.dart';
 import 'package:miniMusic/utils/utils.dart';
@@ -66,16 +67,7 @@ class MusicSto extends BaseInfoStore {
           res2['songs'].forEach((item) async {
             String name = Utils.formatFilename(item['name']);
             List<String> names = await Utils.getDownloadSongsName();
-            songlist.add(
-              {
-                'id': item['id'],
-                'name': name,
-                'songer': item['ar'][0]['name'],
-                'duration': Utils.msToDt(item['dt']),
-                'playId': res['playlist']['id'],
-                'downloadStatus': names.contains(name),
-              },
-            );
+            songlist.add(new Song(item['id'], name, item['ar'][0]['name'], Utils.msToDt(item['dt']), res['playlist']['id'], names.contains(name)));
           });
         });
         return '';
@@ -96,7 +88,7 @@ class MusicSto extends BaseInfoStore {
       if (type == 'del') {
         this.refresh(() {
           this.songlist.removeWhere((item) {
-            return item['id'] == songId;
+            return item.id == songId;
           });
         });
       }

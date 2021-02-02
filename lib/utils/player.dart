@@ -20,7 +20,7 @@ class _Player {
     });
 
     this.audioPlayer.onAudioPositionChanged.listen((event) async {
-      int d = await this.audioPlayer.getDuration();
+      int d = await this.audioPlayer?.getDuration();
       int p = await this.audioPlayer.getCurrentPosition();
 
       musicSto.refresh(() {
@@ -31,9 +31,15 @@ class _Player {
 
   Future<bool> play(int idx) async {
     this.audioPlayer.release();
-    String url = await this.getUrl(idx);
+    String localUrl = await hasLocalMusic(idx);
+    String url;
+    if (localUrl.isNotEmpty) {
+      url = localUrl;
+    } else {
+      url = await this.getUrl(idx);
+    }
     if (url.isNotEmpty) {
-      int i = await this.audioPlayer.play(url);
+      int i = await this.audioPlayer.play(url, isLocal: localUrl.isNotEmpty);
       if (i == 1) {
         musicSto.playIndex = idx;
         musicSto.refresh(() {
@@ -42,6 +48,17 @@ class _Player {
       }
     }
     return this.status;
+  }
+
+  Future<String> hasLocalMusic(int idx) async {
+    String dir = await Utils.downloadPath();
+    String filename =
+        Utils.formatFilename(musicSto.songlist[idx].name) + '.mp3';
+    File mp3 = File(dir + filename);
+    if (mp3.existsSync()) {
+      return mp3.path;
+    }
+    return '';
   }
 
   Future<bool> pause() async {
@@ -69,7 +86,7 @@ class _Player {
   }
 
   Future<String> getUrl(int idx) async {
-    String url = await musicSto.getSongUrl(musicSto.songlist[idx]['id']);
+    String url = await musicSto.getSongUrl(musicSto.songlist[idx].id);
     if (url.isEmpty) {
       musicSto.showSnacker('获取歌曲失败 | 版权原因不能播放');
       musicSto.playIndex += 1;
@@ -81,7 +98,7 @@ class _Player {
 
   Future<void> download(int idx) async {
     String url = await this.getUrl(idx);
-    String name = musicSto.songlist[idx]['name'];
+    String name = musicSto.songlist[idx].name;
 
     if (url.isEmpty) {
       musicSto.showSnacker('下载失败');
@@ -90,7 +107,7 @@ class _Player {
       String filename = Utils.formatFilename(name) + '.mp3';
 
       Directory dir = Directory(savedDir);
-      if(!dir.existsSync()) {
+      if (!dir.existsSync()) {
         Directory(savedDir).createSync();
       }
 
@@ -110,7 +127,7 @@ class _Player {
       if (taskId.isNotEmpty) {
         musicSto.showSnacker('$name 下载成功');
         musicSto.refresh(() {
-          musicSto.songlist[idx]['downloadStatus'] = true;
+          musicSto.songlist[idx].isDownload = true;
         });
       }
     }
